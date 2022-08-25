@@ -17,6 +17,26 @@ class Generic(pygame.sprite.Sprite):
         )
 
 
+class Partical(Generic):
+    def __init__(
+        self, pos: tuple, surf: pygame.Surface, groups: list, z, duraction=200
+    ):
+        super().__init__(pos, surf, groups, z)
+        self.start_time = pygame.time.get_ticks()
+        self.duraction = duraction
+
+        # white Surface
+        mask_surf = pygame.mask.from_surface(self.image)
+        new_surf = mask_surf.to_surface()
+        new_surf.set_colorkey((0, 0, 0))
+        self.image = new_surf
+
+    def update(self, dt):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.start_time > self.duraction:
+            self.kill()
+
+
 class Water(Generic):
     def __init__(self, pos: tuple, frames: list, groups):
 
@@ -67,10 +87,19 @@ class Tree(Generic):
         # Destroy random apple
         if len(self.apple_sprites.sprites()) > 0:
             random_apple = choice(self.apple_sprites.sprites())
+            Partical(
+                pos=random_apple.rect.topleft,
+                surf=random_apple.image,
+                groups=self.groups()[0],
+                z=LAYERS["fruit"],
+            )
             random_apple.kill()
 
     def check_death(self):
         if self.health <= 0:
+            Partical(
+                self.rect.topleft, self.image, self.groups()[0], LAYERS["fruit"], 300
+            )
             self.image = self.stump_surf
             self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
             self.hitbox = self.rect.copy().inflate(-10, -self.rect.height * 0.6)
