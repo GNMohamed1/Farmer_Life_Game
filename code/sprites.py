@@ -17,6 +17,13 @@ class Generic(pygame.sprite.Sprite):
         )
 
 
+class Interaction(Generic):
+    def __init__(self, pos: tuple, size, groups: list, name):
+        surf = pygame.Surface(size)
+        super().__init__(pos, surf, groups)
+        self.name = name
+
+
 class Partical(Generic):
     def __init__(
         self, pos: tuple, surf: pygame.Surface, groups: list, z, duraction=200
@@ -70,6 +77,9 @@ class Tree(Generic):
         super().__init__(pos, surf, groups)
 
         # tree attributes
+        self.pos = pos
+        self.surf = surf
+        self.name = name
         self.health = 5
         self.alive = True
         stump_path = f'../graphics/stumps/{"small" if name == "Small" else "large"}.png'
@@ -83,6 +93,7 @@ class Tree(Generic):
         self.create_fruit()
 
         self.player_add = player_add
+        self.day_passed = 0
 
     def damage(self):
         # Take Damage
@@ -99,6 +110,26 @@ class Tree(Generic):
             )
             self.player_add("apple", 1)
             random_apple.kill()
+
+    def realive(self):
+        # tree attributes
+        self.image = self.surf
+        self.rect = self.image.get_rect(topleft=self.pos)
+        self.health = 5
+        self.alive = True
+        stump_path = (
+            f'../graphics/stumps/{"small" if self.name == "Small" else "large"}.png'
+        )
+        self.stump_surf = pygame.image.load(stump_path).convert_alpha()
+        self.invul_timer = Timer(200)
+
+        # apple
+        self.apple_surf = pygame.image.load("../graphics/fruit/apple.png")
+        self.apples_pos = APPLE_POS[self.name]
+        self.apple_sprites = pygame.sprite.Group()
+        self.create_fruit()
+
+        self.day_passed = 0
 
     def check_death(self):
         if self.health <= 0:

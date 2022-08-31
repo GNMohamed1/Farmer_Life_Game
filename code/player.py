@@ -11,6 +11,7 @@ class Player(pygame.sprite.Sprite):
         group: list,
         collision_sprites: pygame.sprite.Group,
         trees_sprites: pygame.sprite.Group,
+        interaction: pygame.sprite.Group,
     ):
         super().__init__(group)
 
@@ -54,6 +55,8 @@ class Player(pygame.sprite.Sprite):
 
         # interaction
         self.trees_sprites = trees_sprites
+        self.interaction = interaction
+        self.sleep = False
 
         # Inventory
         self.item_inventory = {"wood": 0, "apple": 0, "corn": 0, "tomato": 0}
@@ -116,7 +119,7 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
 
-        if not self.timers["tool use"].active:
+        if not self.timers["tool use"].active and not self.sleep:
             self.movement_input(keys)
 
             # Tool Use
@@ -146,6 +149,18 @@ class Player(pygame.sprite.Sprite):
                 if self.seed_idx >= len(self.seeds):
                     self.seed_idx = 0
                 self.selected_seed = self.seeds[self.seed_idx]
+
+            # interAct
+            if keys[pygame.K_RETURN]:
+                collied_interaction_sprite = pygame.sprite.spritecollide(
+                    self, self.interaction, False
+                )
+                if collied_interaction_sprite:
+                    if collied_interaction_sprite[0].name == "Trader":
+                        pass
+                    else:
+                        self.status = "left_idle"
+                        self.sleep = True
 
     def movement_input(self, keys):
         # Vertical Movement
