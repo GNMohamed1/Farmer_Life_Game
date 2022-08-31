@@ -64,7 +64,9 @@ class WildFlower(Generic):
 
 
 class Tree(Generic):
-    def __init__(self, pos: tuple, surf: pygame.Surface, groups: list, name):
+    def __init__(
+        self, pos: tuple, surf: pygame.Surface, groups: list, name, player_add
+    ):
         super().__init__(pos, surf, groups)
 
         # tree attributes
@@ -80,6 +82,8 @@ class Tree(Generic):
         self.apple_sprites = pygame.sprite.Group()
         self.create_fruit()
 
+        self.player_add = player_add
+
     def damage(self):
         # Take Damage
         self.health -= 1
@@ -93,6 +97,7 @@ class Tree(Generic):
                 groups=self.groups()[0],
                 z=LAYERS["fruit"],
             )
+            self.player_add("apple", 1)
             random_apple.kill()
 
     def check_death(self):
@@ -104,6 +109,7 @@ class Tree(Generic):
             self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
             self.hitbox = self.rect.copy().inflate(-10, -self.rect.height * 0.6)
             self.alive = False
+            self.player_add("wood", 5)
 
     def create_fruit(self):
         for pos in self.apples_pos:

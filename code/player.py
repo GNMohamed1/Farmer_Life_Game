@@ -55,6 +55,9 @@ class Player(pygame.sprite.Sprite):
         # interaction
         self.trees_sprites = trees_sprites
 
+        # Inventory
+        self.item_inventory = {"wood": 0, "apple": 0, "corn": 0, "tomato": 0}
+
     def use_tool(self):
         # print(self.selected_tool)
         if self.selected_tool == "hoe":
