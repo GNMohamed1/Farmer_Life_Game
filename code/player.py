@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from support import *
 from timer import Timer
+from soil import SoilLayer
 
 
 class Player(pygame.sprite.Sprite):
@@ -12,6 +13,7 @@ class Player(pygame.sprite.Sprite):
         collision_sprites: pygame.sprite.Group,
         trees_sprites: pygame.sprite.Group,
         interaction: pygame.sprite.Group,
+        soil_layer: SoilLayer,
     ):
         super().__init__(group)
 
@@ -57,14 +59,14 @@ class Player(pygame.sprite.Sprite):
         self.trees_sprites = trees_sprites
         self.interaction = interaction
         self.sleep = False
+        self.soil_layer = soil_layer
 
         # Inventory
         self.item_inventory = {"wood": 0, "apple": 0, "corn": 0, "tomato": 0}
 
     def use_tool(self):
-        # print(self.selected_tool)
         if self.selected_tool == "hoe":
-            pass
+            self.soil_layer.get_hit(self.target_pos)
 
         if self.selected_tool == "axe":
             for tree in self.trees_sprites.sprites():
@@ -122,45 +124,48 @@ class Player(pygame.sprite.Sprite):
         if not self.timers["tool use"].active and not self.sleep:
             self.movement_input(keys)
 
-            # Tool Use
-            if keys[pygame.K_SPACE] or keys[pygame.K_LCTRL]:
-                self.timers["tool use"].activate()
-                self.direction = pygame.math.Vector2()
-                self.frame_idx = 0
+            self.tool_inputs(keys)
 
-            # Tool Switch
-            if keys[pygame.K_q] and not self.timers["tool switch"].active:
-                self.timers["tool switch"].activate()
-                self.tool_idx += 1
-                if self.tool_idx >= len(self.tools):
-                    self.tool_idx = 0
-                self.selected_tool = self.tools[self.tool_idx]
-
-            # Seed Use
-            if keys[pygame.K_LALT]:
-                self.timers["seed use"].activate()
-                self.direction = pygame.math.Vector2()
-                self.frame_idx = 0
-
-            # Seed Switch
-            if keys[pygame.K_c] and not self.timers["seed switch"].active:
-                self.timers["seed switch"].activate()
-                self.seed_idx += 1
-                if self.seed_idx >= len(self.seeds):
-                    self.seed_idx = 0
-                self.selected_seed = self.seeds[self.seed_idx]
+            self.seed_inputs(keys)
 
             # interAct
             if keys[pygame.K_RETURN]:
-                collied_interaction_sprite = pygame.sprite.spritecollide(
+                if collied_interaction_sprite := pygame.sprite.spritecollide(
                     self, self.interaction, False
-                )
-                if collied_interaction_sprite:
-                    if collied_interaction_sprite[0].name == "Trader":
-                        pass
-                    else:
+                ):
+                    if collied_interaction_sprite[0].name != "Trader":
                         self.status = "left_idle"
                         self.sleep = True
+
+    def tool_inputs(self, keys):
+        # Tool Use
+        if keys[pygame.K_SPACE] or keys[pygame.K_LCTRL]:
+            self.timers["tool use"].activate()
+            self.direction = pygame.math.Vector2()
+            self.frame_idx = 0
+
+        # Tool Switch
+        if keys[pygame.K_q] and not self.timers["tool switch"].active:
+            self.timers["tool switch"].activate()
+            self.tool_idx += 1
+            if self.tool_idx >= len(self.tools):
+                self.tool_idx = 0
+            self.selected_tool = self.tools[self.tool_idx]
+
+    def seed_inputs(self, keys):
+        # Seed Use
+        if keys[pygame.K_LALT]:
+            self.timers["seed use"].activate()
+            self.direction = pygame.math.Vector2()
+            self.frame_idx = 0
+
+        # Seed Switch
+        if keys[pygame.K_c] and not self.timers["seed switch"].active:
+            self.timers["seed switch"].activate()
+            self.seed_idx += 1
+            if self.seed_idx >= len(self.seeds):
+                self.seed_idx = 0
+            self.selected_seed = self.seeds[self.seed_idx]
 
     def movement_input(self, keys):
         # Vertical Movement
