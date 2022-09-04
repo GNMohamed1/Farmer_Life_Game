@@ -1,5 +1,6 @@
 from random import randint
 import pygame
+from sprites import Partical
 from settings import *
 from player import Player
 from overlay import Overlay
@@ -8,7 +9,7 @@ from pytmx.util_pygame import load_pygame
 from support import import_folder
 from transition import Transition
 from soil import SoilLayer
-from sky import Rain
+from sky import Rain, Sky
 
 
 class Level:
@@ -24,15 +25,19 @@ class Level:
         self.interaction_sprites = pygame.sprite.Group()
 
         # Setup
-        self.soil_layer = SoilLayer(self.all_sprites)
+        self.soil_layer = SoilLayer(self.all_sprites, self.player_add)
         self.setup()
         self.overlay = Overlay(self.player)
         self.transition = Transition(self.reset, self.player)
 
         # sky
         self.rain = Rain(self.all_sprites)
+        self.sky = Sky()
         self.raining = randint(0, 10) > 7
         self.soil_layer.raining = self.raining
+
+        # Shop
+        self.shop_active = False
 
     def setup(self):
         tmx_data = load_pygame("../data/map.tmx")
@@ -93,6 +98,7 @@ class Level:
 
         # Player
         for obj in tmx_data.get_layer_by_name("Player"):
+            # Player start
             if obj.name == "Start":
                 self.player = Player(
                     pos=(obj.x, obj.y),
@@ -102,8 +108,16 @@ class Level:
                     interaction=self.interaction_sprites,
                     soil_layer=self.soil_layer,
                 )
-
+            # Bed
             if obj.name == "Bed":
+                Interaction(
+                    (obj.x, obj.y),
+                    (obj.width, obj.height),
+                    self.interaction_sprites,
+                    obj.name,
+                )
+            # Trader
+            if obj.name == "Trader":
                 Interaction(
                     (obj.x, obj.y),
                     (obj.width, obj.height),
@@ -122,6 +136,8 @@ class Level:
         self.player.item_inventory[item] += amount
 
     def reset(self):
+        # plants
+        self.soil_layer.update_plants()
 
         # soil
         self.soil_layer.remove_water()
@@ -141,9 +157,29 @@ class Level:
                 if tree.day_passed >= 2:
                     tree.realive()
 
+        # sky
+        self.sky.start_color = [255, 255, 255]
+
+    def plant_collision(self):
+        if self.soil_layer.plant_sprites:
+            for plant in self.soil_layer.plant_sprites.sprites():
+                if plant.harvestable and plant.rect.colliderect(self.player.rect):
+                    self.player_add(plant.plant_type, 3)
+                    plant.kill()
+                    Partical(
+                        plant.rect.topleft,
+                        plant.image,
+                        self.all_sprites,
+                        LAYERS["main"],
+                    )
+                    x = plant.rect.centerx // TILE_SIZE
+                    y = plant.rect.centery // TILE_SIZE
+                    self.soil_layer.grid[y][x].remove("P")
+
     def run(self, dt):
         self.display_surface.fill("black")
         self.all_sprites.custom_draw(self.player)
+        self.plant_collision()
         self.all_sprites.update(dt)
 
         self.overlay.display()
@@ -151,6 +187,9 @@ class Level:
         # rain
         if self.raining:
             self.rain.update()
+
+        # Sky
+        self.sky.display(dt)
 
         # transition
         if self.player.sleep:

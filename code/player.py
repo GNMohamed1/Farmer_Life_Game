@@ -64,9 +64,12 @@ class Player(pygame.sprite.Sprite):
         # Inventory
         self.item_inventory = {"wood": 0, "apple": 0, "corn": 0, "tomato": 0}
 
+        self.seed_inventory = {"corn": 5, "tomato": 5}
+
     def use_tool(self):
         if self.selected_tool == "hoe":
             self.soil_layer.get_hit(self.target_pos)
+            self.soil_layer.harvset_plant(self.target_pos)
 
         if self.selected_tool == "axe":
             for tree in self.trees_sprites.sprites():
@@ -82,7 +85,10 @@ class Player(pygame.sprite.Sprite):
         )
 
     def use_seed(self):
-        pass
+        if self.seed_inventory[self.selected_seed] > 0 and self.soil_layer.plant_seed(
+            self.target_pos, self.selected_seed, True
+        ):
+            self.seed_inventory[self.selected_seed] -= 1
 
     def animate(self, dt):
         self.frame_idx += 4 * dt
