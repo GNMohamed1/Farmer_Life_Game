@@ -14,6 +14,7 @@ class Player(pygame.sprite.Sprite):
         trees_sprites: pygame.sprite.Group,
         interaction: pygame.sprite.Group,
         soil_layer: SoilLayer,
+        toggle_shop,
     ):
         super().__init__(group)
 
@@ -43,6 +44,7 @@ class Player(pygame.sprite.Sprite):
             "tool switch": Timer(200),
             "seed use": Timer(350, self.use_seed),
             "seed switch": Timer(200),
+            "interact": Timer(200),
         }
 
         # Tool Use
@@ -65,6 +67,8 @@ class Player(pygame.sprite.Sprite):
         self.item_inventory = {"wood": 0, "apple": 0, "corn": 0, "tomato": 0}
 
         self.seed_inventory = {"corn": 5, "tomato": 5}
+        self.toggle_shop = toggle_shop
+        self.money = 200
 
     def use_tool(self):
         if self.selected_tool == "hoe":
@@ -135,11 +139,15 @@ class Player(pygame.sprite.Sprite):
             self.seed_inputs(keys)
 
             # interAct
-            if keys[pygame.K_RETURN]:
+            if keys[pygame.K_RETURN] and not self.timers["interact"].active:
                 if collied_interaction_sprite := pygame.sprite.spritecollide(
                     self, self.interaction, False
                 ):
-                    if collied_interaction_sprite[0].name != "Trader":
+                    if collied_interaction_sprite[0].name == "Trader":
+                        self.timers["interact"].activate()
+                        self.toggle_shop()
+                    else:
+                        self.timers["interact"].activate()
                         self.status = "left_idle"
                         self.sleep = True
 
