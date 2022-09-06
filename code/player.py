@@ -70,6 +70,10 @@ class Player(pygame.sprite.Sprite):
         self.toggle_shop = toggle_shop
         self.money = 200
 
+        # sound
+        self.watering = pygame.mixer.Sound("../audio/water.mp3")
+        self.watering.set_volume(0.2)
+
     def use_tool(self):
         if self.selected_tool == "hoe":
             self.soil_layer.get_hit(self.target_pos)
@@ -82,6 +86,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.selected_tool == "water":
             self.soil_layer.water(self.target_pos)
+            self.watering.play()
 
     def get_target_pos(self):
         self.target_pos = (

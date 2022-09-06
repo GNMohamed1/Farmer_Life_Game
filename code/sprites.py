@@ -95,9 +95,15 @@ class Tree(Generic):
         self.player_add = player_add
         self.day_passed = 0
 
+        # sounds
+        self.axe_sound = pygame.mixer.Sound("../audio/axe.mp3")
+
     def damage(self):
         # Take Damage
         self.health -= 1
+        
+        # Play Sound
+        self.axe_sound.play()
 
         # Destroy random apple
         if len(self.apple_sprites.sprites()) > 0:

@@ -43,6 +43,17 @@ class Level:
         # menu
         self.shop_menu = ShopMenu(self.player, self.toggle_shop)
 
+        # sounds
+        self.success_sound = pygame.mixer.Sound("../audio/success.wav")
+        self.success_sound.set_volume(0.3)
+
+        self.bg_sound = pygame.mixer.Sound("../audio/bg.mp3")
+        self.bg_sound.set_volume(0.1)
+        self.bg_sound.play(loops=-1)
+
+        self.sleep_music = pygame.mixer.Sound("../audio/music.mp3")
+        self.sleep_music.set_volume(0.1)
+
     def setup(self):
         tmx_data = load_pygame("../data/map.tmx")
 
@@ -139,6 +150,7 @@ class Level:
 
     def player_add(self, item, amount):
         self.player.item_inventory[item] += amount
+        self.success_sound.play()
 
     def toggle_shop(self):
         self.shop_active = not self.shop_active
@@ -202,7 +214,11 @@ class Level:
 
         # transition
         if self.player.sleep:
+            self.bg_sound.stop()
+            self.sleep_music.play()
             self.transition.play()
+            self.sleep_music.fadeout(500)
+            self.bg_sound.play()
 
 
 class CameraGroup(pygame.sprite.Group):
