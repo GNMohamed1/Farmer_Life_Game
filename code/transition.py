@@ -3,9 +3,9 @@ from settings import *
 
 
 class Transition:
-    def __init__(self, reset, player):
+    def __init__(self, func, player=None):
         self.display_surface = pygame.display.get_surface()
-        self.reset = reset
+        self.func = func
         self.player = player
 
         # overlay image
@@ -18,13 +18,22 @@ class Transition:
         if self.color <= 0:
             self.speed *= -1
             self.color = 0
-            self.reset()
+            self.func()
         if self.color > 255:
             self.color = 255
-            self.player.sleep = False
             self.speed = -2
+            if self.player:
+                self.player.sleep = False
 
         self.image.fill((self.color, self.color, self.color))
         self.display_surface.blit(
             self.image, (0, 0), special_flags=pygame.BLEND_RGBA_MULT
         )
+
+
+class DayTransition(Transition):
+    def __init__(self, reset, player):
+        super().__init__(reset, player)
+
+    def play(self):
+        super().play()

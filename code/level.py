@@ -7,7 +7,7 @@ from overlay import Overlay
 from sprites import Generic, Water, WildFlower, Tree, Interaction
 from pytmx.util_pygame import load_pygame
 from support import import_folder
-from transition import Transition
+from transition import Transition, DayTransition
 from soil import SoilLayer
 from sky import Rain, Sky
 from menu import ShopMenu
@@ -32,7 +32,7 @@ class Level:
         self.soil_layer = SoilLayer(self.all_sprites, self.player_add)
         self.setup()
         self.overlay = Overlay(self.player)
-        self.transition = Transition(self.reset, self.player)
+        self.day_transition = DayTransition(self.reset, self.player)
 
         # sky
         self.rain = Rain(self.all_sprites)
@@ -216,7 +216,7 @@ class Level:
         if self.player.sleep:
             self.bg_sound.stop()
             self.sleep_music.play()
-            self.transition.play()
+            self.day_transition.play()
             self.sleep_music.fadeout(500)
             self.bg_sound.play()
 
