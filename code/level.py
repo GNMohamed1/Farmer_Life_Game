@@ -11,10 +11,11 @@ from transition import Transition, DayTransition
 from soil import SoilLayer
 from sky import Rain, Sky
 from menu import ShopMenu
+from main_menu import PauseMenu
 
 
 class Level:
-    def __init__(self):
+    def __init__(self, trans=False):
 
         # get the display surface
         self.display_surface = pygame.display.get_surface()
@@ -53,6 +54,20 @@ class Level:
 
         self.sleep_music = pygame.mixer.Sound("../audio/music.mp3")
         self.sleep_music.set_volume(0.1)
+
+        # pause
+        self.paused = False
+        self.pause_menu = PauseMenu(self.continue_func)
+
+        # timer
+        self.start_time = 0
+        self.duraction = 200
+        self.timer_cy = False
+        self.trans = trans
+        self.count = 0
+
+    def continue_func(self):
+        self.paused = not self.paused
 
     def setup(self):
         tmx_data = load_pygame("../data/map.tmx")
@@ -196,29 +211,46 @@ class Level:
                     y = plant.rect.centery // TILE_SIZE
                     self.soil_layer.grid[y][x].remove("P")
 
+    def timer(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.start_time >= self.duraction:
+            self.timer_cy = False
+
     def run(self, dt):
+        keys = pygame.key.get_pressed()
         self.display_surface.fill("black")
-        self.all_sprites.custom_draw(self.player)
+        if self.timer_cy:
+            self.timer()
+        if keys[pygame.K_ESCAPE] and not self.timer_cy:
+            self.start_time = pygame.time.get_ticks()
+            self.timer_cy = True
+            self.continue_func()
 
-        if self.shop_active:
-            self.shop_menu.update()
-        else:
-            self.all_sprites.update(dt)
-            self.plant_collision()
+        if not self.trans:
 
-        # weather
-        self.overlay.display()
-        if self.raining and not self.shop_active:
-            self.rain.update()
-        self.sky.display(dt)
+            self.all_sprites.custom_draw(self.player)
 
-        # transition
-        if self.player.sleep:
-            self.bg_sound.stop()
-            self.sleep_music.play()
-            self.day_transition.play()
-            self.sleep_music.fadeout(500)
-            self.bg_sound.play()
+            if self.shop_active:
+                self.shop_menu.update()
+            elif self.paused:
+                self.pause_menu.update()
+            else:
+                self.all_sprites.update(dt)
+                self.plant_collision()
+
+            # weather
+            self.overlay.display()
+            if self.raining and not self.shop_active and not self.paused:
+                self.rain.update()
+            self.sky.display(dt)
+
+            # transition
+            if self.player.sleep:
+                self.bg_sound.stop()
+                self.sleep_music.play()
+                self.day_transition.play()
+                self.sleep_music.fadeout(500)
+                self.bg_sound.play()
 
 
 class CameraGroup(pygame.sprite.Group):
