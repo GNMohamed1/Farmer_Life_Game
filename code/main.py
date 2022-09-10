@@ -1,7 +1,7 @@
 import pygame, sys, time
 from settings import *
 from level import Level
-from main_menu import MainMenu
+from menu import MainMenu
 from animator import Animator
 
 
@@ -50,6 +50,7 @@ class Game:
 
     def run(self):
         previous_time = time.time()
+
         while True:
             fps = self.clock.get_fps()
             self.dt = time.time() - previous_time
@@ -65,25 +66,28 @@ class Game:
 
                 self.level.run(self.dt)
             else:
+                pos_y = SCREEN_HEIGHT // 2
                 self.screen.fill("#DCDDDB")
                 self.main_menu_animator.move(
                     [
-                        (SCREEN_WIDTH // 2) - self.main_menu.btn_width // 2,
-                        self.main_menu.btn_height,
+                        (SCREEN_WIDTH // 2),
+                        pos_y,
                     ],
-                    speed=150,
+                    speed=550,
                     dt=self.dt,
                     idx=0,
                 )
+                pos_y += self.main_menu.btn_height - 1
                 self.main_menu_animator.move(
                     [
-                        (SCREEN_WIDTH // 2) - self.main_menu.btn_width // 2,
-                        (self.main_menu.btn_height * 2 - 1),
+                        (SCREEN_WIDTH // 2),
+                        (pos_y),
                     ],
-                    speed=150,
+                    speed=550,
                     dt=self.dt,
                     idx=1,
                 )
+                pos_y += self.main_menu.btn_height
                 self.main_menu_animator.update()
             pygame.display.update()
 

@@ -7,11 +7,10 @@ from overlay import Overlay
 from sprites import Generic, Water, WildFlower, Tree, Interaction
 from pytmx.util_pygame import load_pygame
 from support import import_folder
-from transition import Transition, DayTransition
+from transition import DayTransition
 from soil import SoilLayer
 from sky import Rain, Sky
-from menu import ShopMenu
-from main_menu import PauseMenu
+from menu import ShopMenu, PauseMenu
 
 
 class Level:
