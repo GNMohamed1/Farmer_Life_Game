@@ -2,7 +2,6 @@ import pygame
 from settings import *
 from support import *
 from timer import Timer
-from soil import SoilLayer
 
 
 class Player(pygame.sprite.Sprite):
@@ -13,10 +12,17 @@ class Player(pygame.sprite.Sprite):
         collision_sprites: pygame.sprite.Group,
         trees_sprites: pygame.sprite.Group,
         interaction: pygame.sprite.Group,
-        soil_layer: SoilLayer,
+        soil_layer,
         toggle_shop,
+        trans,
     ):
         super().__init__(group)
+
+        # fixes bug
+        self.trans = trans
+
+        # load data
+        self.data = load_file()
 
         # Animations setup
         self.import_assets()
@@ -48,13 +54,13 @@ class Player(pygame.sprite.Sprite):
         }
 
         # Tool Use
-        self.tools = ["axe", "hoe", "water"]
-        self.tool_idx = 0
+        self.tools = self.data["tools"]
+        self.tool_idx = self.data["tool_idx"]
         self.selected_tool = self.tools[self.tool_idx]
 
         # Seeds
-        self.seeds = ["corn", "tomato"]
-        self.seed_idx = 0
+        self.seeds = self.data["seeds"]
+        self.seed_idx = self.data["seed_idx"]
         self.selected_seed = self.seeds[self.seed_idx]
 
         # interaction
@@ -64,11 +70,11 @@ class Player(pygame.sprite.Sprite):
         self.soil_layer = soil_layer
 
         # Inventory
-        self.item_inventory = {"wood": 0, "apple": 0, "corn": 0, "tomato": 0}
+        self.item_inventory = self.data["item_inventory"]
 
-        self.seed_inventory = {"corn": 5, "tomato": 5}
+        self.seed_inventory = self.data["seed_inventory"]
         self.toggle_shop = toggle_shop
-        self.money = 200
+        self.money = self.data["money"]
 
         # sound
         self.watering = pygame.mixer.Sound("../audio/water.mp3")
@@ -136,7 +142,7 @@ class Player(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
 
-        if not self.timers["tool use"].active and not self.sleep:
+        if not self.timers["tool use"].active and not self.sleep and not self.trans:
             self.movement_input(keys)
 
             self.tool_inputs(keys)
@@ -155,6 +161,20 @@ class Player(pygame.sprite.Sprite):
                         self.timers["interact"].activate()
                         self.status = "left_idle"
                         self.sleep = True
+                        self.save()
+
+    def save(self):
+        self.data = {
+            "tools": self.tools,
+            "tool_idx": self.tool_idx,
+            "seeds": self.seeds,
+            "seed_idx": self.seed_idx,
+            "item_inventory": self.item_inventory,
+            "seed_inventory": self.seed_inventory,
+            "money": self.money,
+        }
+
+        save_file(self.data)
 
     def tool_inputs(self, keys):
         # Tool Use

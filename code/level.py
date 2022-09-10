@@ -7,7 +7,7 @@ from overlay import Overlay
 from sprites import Generic, Water, WildFlower, Tree, Interaction
 from pytmx.util_pygame import load_pygame
 from support import import_folder
-from transition import DayTransition
+from transition import Transition
 from soil import SoilLayer
 from sky import Rain, Sky
 from menu import ShopMenu, PauseMenu
@@ -15,6 +15,7 @@ from menu import ShopMenu, PauseMenu
 
 class Level:
     def __init__(self, trans=False):
+        self.trans = trans
 
         # get the display surface
         self.display_surface = pygame.display.get_surface()
@@ -32,7 +33,7 @@ class Level:
         self.soil_layer = SoilLayer(self.all_sprites, self.player_add)
         self.setup()
         self.overlay = Overlay(self.player)
-        self.day_transition = DayTransition(self.reset, self.player)
+        self.transition = Transition(self.reset, self.player)
 
         # sky
         self.rain = Rain(self.all_sprites)
@@ -137,6 +138,7 @@ class Level:
                     interaction=self.interaction_sprites,
                     soil_layer=self.soil_layer,
                     toggle_shop=self.toggle_shop,
+                    trans=self.trans,
                 )
             # Bed
             if obj.name == "Bed":
@@ -185,11 +187,12 @@ class Level:
         for tree in self.tree_sprites.sprites():
             for apple in tree.apple_sprites.sprites():
                 apple.kill()
-            tree.create_fruit()
             if not tree.alive:
                 tree.day_passed += 1
                 if tree.day_passed >= 2:
                     tree.realive()
+            else:
+                tree.create_fruit()
 
         # sky
         self.sky.start_color = [255, 255, 255]
@@ -216,6 +219,9 @@ class Level:
             self.timer_cy = False
 
     def run(self, dt):
+        if self.trans:
+            return
+        self.player.trans = False
         keys = pygame.key.get_pressed()
         self.display_surface.fill("black")
         if self.timer_cy:
@@ -224,32 +230,20 @@ class Level:
             self.start_time = pygame.time.get_ticks()
             self.timer_cy = True
             self.continue_func()
-
-        if not self.trans:
-
-            self.all_sprites.custom_draw(self.player)
-
-            if self.shop_active:
-                self.shop_menu.update()
-            elif self.paused:
-                self.pause_menu.update()
-            else:
-                self.all_sprites.update(dt)
-                self.plant_collision()
-
-            # weather
-            self.overlay.display()
-            if self.raining and not self.shop_active and not self.paused:
-                self.rain.update()
-            self.sky.display(dt)
-
-            # transition
-            if self.player.sleep:
-                self.bg_sound.stop()
-                self.sleep_music.play()
-                self.day_transition.play()
-                self.sleep_music.fadeout(500)
-                self.bg_sound.play()
+        self.all_sprites.custom_draw(self.player)
+        if self.shop_active:
+            self.shop_menu.update()
+        elif self.paused:
+            self.pause_menu.update()
+        else:
+            self.all_sprites.update(dt)
+            self.plant_collision()
+        self.overlay.display()
+        if self.raining and not self.shop_active and not self.paused:
+            self.rain.update()
+        self.sky.display(dt)
+        if self.player.sleep:
+            self.transition.play()
 
 
 class CameraGroup(pygame.sprite.Group):
@@ -258,7 +252,7 @@ class CameraGroup(pygame.sprite.Group):
         self.display_surface = pygame.display.get_surface()
         self.offset = pygame.math.Vector2()
 
-    def custom_draw(self, player: Player):
+    def custom_draw(self, player):
         self.offset.x = player.rect.centerx - SCREEN_WIDTH / 2
         self.offset.y = player.rect.centery - SCREEN_HEIGHT / 2
 

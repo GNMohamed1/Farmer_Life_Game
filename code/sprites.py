@@ -79,6 +79,7 @@ class Tree(Generic):
         # tree attributes
         self.pos = pos
         self.surf = surf
+        self.agroups = groups
         self.name = name
         self.health = 5
         self.alive = True
@@ -101,7 +102,7 @@ class Tree(Generic):
     def damage(self):
         # Take Damage
         self.health -= 1
-        
+
         # Play Sound
         self.axe_sound.play()
 
@@ -118,21 +119,12 @@ class Tree(Generic):
             random_apple.kill()
 
     def realive(self):
-        # tree attributes
-        self.image = self.surf
-        self.rect = self.image.get_rect(topleft=self.pos)
         self.health = 5
-        self.alive = True
-        stump_path = (
-            f'../graphics/stumps/{"small" if self.name == "Small" else "large"}.png'
-        )
-        self.stump_surf = pygame.image.load(stump_path).convert_alpha()
-        self.invul_timer = Timer(200)
 
-        # apple
-        self.apple_surf = pygame.image.load("../graphics/fruit/apple.png")
-        self.apples_pos = APPLE_POS[self.name]
-        self.apple_sprites = pygame.sprite.Group()
+        self.image = self.surf
+        self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
+        self.hitbox = self.rect.copy().inflate(-10, -self.rect.height * 0.6)
+        self.alive = True
         self.create_fruit()
 
         self.day_passed = 0
