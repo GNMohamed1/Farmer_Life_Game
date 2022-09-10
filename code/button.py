@@ -8,6 +8,7 @@ class Button(pygame.sprite.Sprite):
         self.display_surf = pygame.display.get_surface()
         self.pos = pos
         self.func = func
+        self.text = text
 
         # graphics
         self.img = pygame.image.load("../graphics/ui/buttons/button.png")

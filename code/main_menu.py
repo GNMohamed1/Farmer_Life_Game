@@ -9,7 +9,7 @@ class MainMenu:
         self.display_surf = pygame.display.get_surface()
         self.btn_width = 256
         self.btn_height = 128
-        self.padding = ((SCREEN_WIDTH // 2) - self.btn_width // 2, self.btn_height)
+        self.padding = ((SCREEN_WIDTH // 2) - self.btn_width // 2, -self.btn_height)
         self.start = menu_start
 
         # buttons
@@ -22,7 +22,7 @@ class MainMenu:
 
     def setup(self):
         # start button
-        pos = (self.padding[0], 0)
+        pos = (self.padding[0], self.padding[1])
         self.buttons.append(
             Button("Start", self.btn_width, self.btn_height, pos, self.start)
         )

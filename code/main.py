@@ -2,12 +2,14 @@ import pygame, sys, time
 from settings import *
 from level import Level
 from main_menu import MainMenu
+from animator import Animator
 
 
 class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.clock = pygame.time.Clock()
         pygame.display.set_caption("Stardew Vally Clone")
         self.clock = pygame.time.Clock()
         # self.level = Level()
@@ -15,6 +17,8 @@ class Game:
         self.state = ["main menu", "level"]
         self.idx = 0
         self.level_init = False
+        self.main_menu_animator = Animator(self.main_menu, "main menu")
+        self.basic = pygame.font.Font("../font/forw.ttf", 16)
 
     def level_fade(self):
         font = pygame.font.Font("../font/forw.ttf", 32)
@@ -47,6 +51,7 @@ class Game:
     def run(self):
         previous_time = time.time()
         while True:
+            fps = self.clock.get_fps()
             self.dt = time.time() - previous_time
             previous_time = time.time()
             for event in pygame.event.get():
@@ -61,8 +66,25 @@ class Game:
                 self.level.run(self.dt)
             else:
                 self.screen.fill("#DCDDDB")
-                self.main_menu.update()
-
+                self.main_menu_animator.move(
+                    [
+                        (SCREEN_WIDTH // 2) - self.main_menu.btn_width // 2,
+                        self.main_menu.btn_height,
+                    ],
+                    speed=150,
+                    dt=self.dt,
+                    idx=0,
+                )
+                self.main_menu_animator.move(
+                    [
+                        (SCREEN_WIDTH // 2) - self.main_menu.btn_width // 2,
+                        (self.main_menu.btn_height * 2 - 1),
+                    ],
+                    speed=150,
+                    dt=self.dt,
+                    idx=1,
+                )
+                self.main_menu_animator.update()
             pygame.display.update()
 
 
