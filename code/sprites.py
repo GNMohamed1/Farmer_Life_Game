@@ -72,17 +72,18 @@ class WildFlower(Generic):
 
 class Tree(Generic):
     def __init__(
-        self, pos: tuple, surf: pygame.Surface, groups: list, name, player_add
+        self, pos: tuple, surf: pygame.Surface, groups: list, name, player_add, data
     ):
         super().__init__(pos, surf, groups)
 
         # tree attributes
+        self.data = data
         self.pos = pos
         self.surf = surf
         self.agroups = groups
         self.name = name
-        self.health = 5
-        self.alive = True
+        self.health = data[0]
+        self.alive = data[1]
         stump_path = f'../graphics/stumps/{"small" if name == "Small" else "large"}.png'
         self.stump_surf = pygame.image.load(stump_path).convert_alpha()
         self.invul_timer = Timer(200)
@@ -94,7 +95,7 @@ class Tree(Generic):
         self.create_fruit()
 
         self.player_add = player_add
-        self.day_passed = 0
+        self.day_passed = data[2]
 
         # sounds
         self.axe_sound = pygame.mixer.Sound("../audio/axe.mp3")
@@ -155,3 +156,15 @@ class Tree(Generic):
     def update(self, dt):
         if self.alive:
             self.check_death()
+
+    def load(self):
+        if self.health <= 0:
+            self.image = self.stump_surf
+            self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
+            self.hitbox = self.rect.copy().inflate(-10, -self.rect.height * 0.6)
+            self.alive = False
+            for apple in self.apple_sprites.sprites():
+                apple.kill()
+
+    def save(self):
+        self.data = [self.health, self.alive, self.day_passed]

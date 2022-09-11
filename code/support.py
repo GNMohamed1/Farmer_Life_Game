@@ -26,21 +26,17 @@ def import_folder_dict(path):
     return surface_dict
 
 
-def encrypt(path):
-    pass
-
-
 def load_file():
-    if path.exists("../saves/1.txt"):
-        with open("../saves/1.txt") as save:
+    if path.exists("../saves/1.json"):
+        with open("../saves/1.json") as save:
             data = json.load(save)
     else:
-        with open("../saves/default.txt") as save:
+        with open("../saves/default.json") as save:
             data = json.load(save)
 
     return data
 
 
 def save_file(data):
-    with open("../saves/1.txt", "w") as save:
+    with open("../saves/1.json", "w") as save:
         json.dump(data, save)

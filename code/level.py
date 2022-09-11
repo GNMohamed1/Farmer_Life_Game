@@ -6,7 +6,7 @@ from player import Player
 from overlay import Overlay
 from sprites import Generic, Water, WildFlower, Tree, Interaction
 from pytmx.util_pygame import load_pygame
-from support import import_folder
+from support import *
 from transition import Transition
 from soil import SoilLayer
 from sky import Rain, Sky
@@ -30,7 +30,12 @@ class Level:
         self.shop_active = False
 
         # Setup
-        self.soil_layer = SoilLayer(self.all_sprites, self.player_add)
+        self.data = load_file()
+        self.player_data = self.data["Player"]
+        self.soil_layer = SoilLayer(
+            self.all_sprites, self.player_add, self.data["Soil"], self.data["Plants"]
+        )
+        self.soil_layer.load()
         self.setup()
         self.overlay = Overlay(self.player)
         self.transition = Transition(self.reset, self.player)
@@ -65,6 +70,9 @@ class Level:
         self.timer_cy = False
         self.trans = trans
         self.count = 0
+
+        for tree in self.tree_sprites.sprites():
+            tree.load()
 
     def continue_func(self):
         self.paused = not self.paused
@@ -104,13 +112,14 @@ class Level:
             Water((x * TILE_SIZE, y * TILE_SIZE), water_frames, self.all_sprites)
 
         # Tree
-        for obj in tmx_data.get_layer_by_name("Trees"):
+        for idx, obj in enumerate(tmx_data.get_layer_by_name("Trees")):
             Tree(
                 pos=(obj.x, obj.y),
                 surf=obj.image,
                 groups=[self.all_sprites, self.collision_sprites, self.tree_sprites],
                 name=obj.name,
                 player_add=self.player_add,
+                data=self.data["Trees"][idx],
             )
 
         # Decoration
@@ -139,6 +148,7 @@ class Level:
                     soil_layer=self.soil_layer,
                     toggle_shop=self.toggle_shop,
                     trans=self.trans,
+                    data=self.player_data,
                 )
             # Bed
             if obj.name == "Bed":
@@ -218,6 +228,16 @@ class Level:
         if current_time - self.start_time >= self.duraction:
             self.timer_cy = False
 
+    def save(self):
+        self.soil_layer.save()
+        for idx, tree in enumerate(self.tree_sprites.sprites()):
+            tree.save()
+            self.data["Trees"][idx] = tree.data
+        self.data["Player"] = self.player.data
+        self.data["Soil"] = self.soil_layer.data_soil
+        self.data["Plant"] = self.soil_layer.data_plants
+        save_file(self.data)
+
     def run(self, dt):
         if self.trans:
             return
@@ -243,6 +263,7 @@ class Level:
             self.rain.update()
         self.sky.display(dt)
         if self.player.sleep:
+            self.save()
             self.transition.play()
 
 

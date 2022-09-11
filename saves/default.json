@@ -1,0 +1,17 @@
+{
+"Player": {"tools": ["axe", "hoe", "water"],
+        "tool_idx": 0, 
+        "seeds": ["corn", "tomato"], 
+        "seed_idx": 0,
+        "item_inventory": {"wood": 0, "apple": 0, "corn": 0, "tomato": 0},
+        "seed_inventory": {"corn": 5, "tomato": 5},
+        "money": 200},
+"Soil": {"grid": [], "water": []},
+"Plants" : [],
+"Trees" : [[5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0],
+          [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0],
+          [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0],
+          [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0],
+          [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0],
+          [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0], [5, true, 0]]
+}

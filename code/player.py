@@ -15,6 +15,7 @@ class Player(pygame.sprite.Sprite):
         soil_layer,
         toggle_shop,
         trans,
+        data,
     ):
         super().__init__(group)
 
@@ -22,7 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.trans = trans
 
         # load data
-        self.data = load_file()
+        self.data = data
 
         # Animations setup
         self.import_assets()
@@ -173,8 +174,6 @@ class Player(pygame.sprite.Sprite):
             "seed_inventory": self.seed_inventory,
             "money": self.money,
         }
-
-        save_file(self.data)
 
     def tool_inputs(self, keys):
         # Tool Use
