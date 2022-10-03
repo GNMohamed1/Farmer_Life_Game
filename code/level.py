@@ -11,11 +11,14 @@ from transition import Transition
 from soil import SoilLayer
 from sky import Rain, Sky
 from menu import ShopMenu, PauseMenu
+from bars import LoadingBar
 
 
 class Level:
-    def __init__(self, trans=False):
+    def __init__(self, trans=False, loading_bar: LoadingBar = None):
         self.trans = trans
+        self.loading_bar = loading_bar
+        self.font = pygame.font.SysFont("Roboto", 64)
 
         # get the display surface
         self.display_surface = pygame.display.get_surface()
@@ -26,19 +29,25 @@ class Level:
         self.tree_sprites = pygame.sprite.Group()
         self.interaction_sprites = pygame.sprite.Group()
 
+        self.loading_bar.add_progress(5)
+
         # Shop
         self.shop_active = False
 
+        self.loading_bar.add_progress(5)
+
         # Setup
         self.data = load_file()
+        self.loading_bar.add_progress(5)
         self.player_data = self.data["Player"]
         self.soil_layer = SoilLayer(
             self.all_sprites, self.player_add, self.data["Soil"], self.data["Plants"]
         )
-        self.soil_layer.load()
+        self.loading_bar.add_progress(5)
         self.setup()
         self.overlay = Overlay(self.player)
         self.transition = Transition(self.reset, self.player)
+        self.loading_bar.add_progress(5)
 
         # sky
         self.rain = Rain(self.all_sprites)
@@ -46,8 +55,11 @@ class Level:
         self.raining = randint(0, 10) > 7
         self.soil_layer.raining = self.raining
 
+        self.loading_bar.add_progress(5)
+
         # menu
         self.shop_menu = ShopMenu(self.player, self.toggle_shop)
+        self.loading_bar.add_progress(5)
 
         # sounds
         self.success_sound = pygame.mixer.Sound("../audio/success.wav")
@@ -60,9 +72,13 @@ class Level:
         self.sleep_music = pygame.mixer.Sound("../audio/music.mp3")
         self.sleep_music.set_volume(0.1)
 
+        self.loading_bar.add_progress(5)
+
         # pause
         self.paused = False
         self.pause_menu = PauseMenu(self.continue_func)
+
+        self.loading_bar.add_progress(5)
 
         # timer
         self.start_time = 0
@@ -71,8 +87,11 @@ class Level:
         self.trans = trans
         self.count = 0
 
-        for tree in self.tree_sprites.sprites():
-            tree.load()
+        # load
+        self.load()
+
+        self.loading_bar.add_progress(5)
+        self.loading_bar.loading_finished = True
 
     def continue_func(self):
         self.paused = not self.paused
@@ -90,6 +109,8 @@ class Level:
                     LAYERS["house bottom"],
                 )
 
+        self.loading_bar.add_progress(5)
+
         for layer in ["HouseWalls", "HouseFurnitureTop"]:
             for x, y, surf in tmx_data.get_layer_by_name(layer).tiles():
                 Generic(
@@ -97,6 +118,8 @@ class Level:
                     surf,
                     self.all_sprites,
                 )
+
+        self.loading_bar.add_progress(5)
 
         # Fence
         for x, y, surf in tmx_data.get_layer_by_name("Fence").tiles():
@@ -106,10 +129,14 @@ class Level:
                 [self.all_sprites, self.collision_sprites],
             )
 
+        self.loading_bar.add_progress(5)
+
         # Water
         water_frames = import_folder("../graphics/water")
         for x, y, surf in tmx_data.get_layer_by_name("Water").tiles():
             Water((x * TILE_SIZE, y * TILE_SIZE), water_frames, self.all_sprites)
+
+        self.loading_bar.add_progress(5)
 
         # Tree
         for idx, obj in enumerate(tmx_data.get_layer_by_name("Trees")):
@@ -121,6 +148,8 @@ class Level:
                 player_add=self.player_add,
                 data=self.data["Trees"][idx],
             )
+
+        self.loading_bar.add_progress(5)
 
         # Decoration
         for obj in tmx_data.get_layer_by_name("Decoration"):
@@ -135,21 +164,23 @@ class Level:
                 self.collision_sprites,
             )
 
+        self.loading_bar.add_progress(5)
+
         # Player
+        self.player = Player(
+            group=self.all_sprites,
+            collision_sprites=self.collision_sprites,
+            trees_sprites=self.tree_sprites,
+            interaction=self.interaction_sprites,
+            soil_layer=self.soil_layer,
+            toggle_shop=self.toggle_shop,
+            trans=self.trans,
+            data=self.player_data,
+        )
+
+        self.loading_bar.add_progress(5)
+
         for obj in tmx_data.get_layer_by_name("Player"):
-            # Player start
-            if obj.name == "Start":
-                self.player = Player(
-                    pos=(obj.x, obj.y),
-                    group=self.all_sprites,
-                    collision_sprites=self.collision_sprites,
-                    trees_sprites=self.tree_sprites,
-                    interaction=self.interaction_sprites,
-                    soil_layer=self.soil_layer,
-                    toggle_shop=self.toggle_shop,
-                    trans=self.trans,
-                    data=self.player_data,
-                )
             # Bed
             if obj.name == "Bed":
                 Interaction(
@@ -158,6 +189,9 @@ class Level:
                     self.interaction_sprites,
                     obj.name,
                 )
+
+            self.loading_bar.add_progress(5)
+
             # Trader
             if obj.name == "Trader":
                 Interaction(
@@ -167,12 +201,16 @@ class Level:
                     obj.name,
                 )
 
+            self.loading_bar.add_progress(5)
+
         Generic(
             pos=(0, 0),
             surf=pygame.image.load("../graphics/world/ground.png").convert_alpha(),
             groups=self.all_sprites,
             z=LAYERS["ground"],
         )
+
+        self.loading_bar.add_progress(5)
 
     def player_add(self, item, amount):
         self.player.item_inventory[item] += amount
@@ -235,11 +273,16 @@ class Level:
             self.data["Trees"][idx] = tree.data
         self.data["Player"] = self.player.data
         self.data["Soil"] = self.soil_layer.data_soil
-        self.data["Plant"] = self.soil_layer.data_plants
+        self.data["Plants"] = self.soil_layer.data_plants
         save_file(self.data)
 
+    def load(self):
+        self.soil_layer.load()
+        for tree in self.tree_sprites.sprites():
+            tree.load()
+
     def run(self, dt):
-        if self.trans:
+        if self.loading_bar.couts < 120:
             return
         self.player.trans = False
         keys = pygame.key.get_pressed()

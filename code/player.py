@@ -7,7 +7,6 @@ from timer import Timer
 class Player(pygame.sprite.Sprite):
     def __init__(
         self,
-        pos: tuple,
         group: list,
         collision_sprites: pygame.sprite.Group,
         trees_sprites: pygame.sprite.Group,
@@ -27,13 +26,13 @@ class Player(pygame.sprite.Sprite):
 
         # Animations setup
         self.import_assets()
-        self.status = "down_idle"
+        self.status = data["status"]
         self.frame_idx = 0
         self.animation_speed = 4
 
         # Player setup
         self.image = self.animations[self.status][self.frame_idx]
-        self.rect = self.image.get_rect(center=pos)
+        self.rect = self.image.get_rect(center=data["pos"])
         self.z = LAYERS["main"]
 
         # Collision
@@ -173,6 +172,8 @@ class Player(pygame.sprite.Sprite):
             "item_inventory": self.item_inventory,
             "seed_inventory": self.seed_inventory,
             "money": self.money,
+            "pos": self.rect.center,
+            "status": self.status,
         }
 
     def tool_inputs(self, keys):

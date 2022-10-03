@@ -42,12 +42,12 @@ class Plant(pygame.sprite.Sprite):
         self.harvestable = data[2] if load else False
 
         # plant growing
-        self.age = data[1] if load else False
+        self.age = data[1] if load else 0
         self.max_age = len(self.frames) - 1
         self.grow_speed = GROW_SPEED[self.plant_type]
 
         # sprite setup
-        self.image = self.frames[self.age]
+        self.image = self.frames[int(self.age)]
         self.y_offset = -16 if plant_type == "corn" else -8
         self.rect = self.image.get_rect(
             midbottom=self.soil.rect.midbottom + pygame.math.Vector2(0, self.y_offset)
