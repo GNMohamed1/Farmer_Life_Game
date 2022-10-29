@@ -27,6 +27,15 @@ LAYERS = {
     "house top": 8,
     "fruit": 9,
     "rain_drops": 10,
+    "particals": 11,
+}
+
+COLORS = {
+    "red": (255, 0, 0),
+    "blue": (0, 0, 255),
+    "green": (0, 255, 0),
+    "white": (255, 255, 255),
+    "black": (0, 0, 0),
 }
 
 APPLE_POS = {

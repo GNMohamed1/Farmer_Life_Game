@@ -2,6 +2,7 @@ from random import randint, choice
 import pygame
 from settings import *
 from timer import Timer
+from praticales import Partical
 
 
 class Generic(pygame.sprite.Sprite):
@@ -24,7 +25,7 @@ class Interaction(Generic):
         self.name = name
 
 
-class Partical(Generic):
+class MaskPratical(Generic):
     def __init__(
         self, pos: tuple, surf: pygame.Surface, groups: list, z, duraction=200
     ):
@@ -100,6 +101,9 @@ class Tree(Generic):
         # sounds
         self.axe_sound = pygame.mixer.Sound("../audio/axe.mp3")
 
+        # Particals
+        self.particals = []
+
     def damage(self):
         # Take Damage
         self.health -= 1
@@ -107,10 +111,17 @@ class Tree(Generic):
         # Play Sound
         self.axe_sound.play()
 
+        for _ in range(randint(5, 10)):
+            self.particals.append(
+                Partical(
+                    self.rect.center, self.groups()[0], "brown", LAYERS["particals"]
+                )
+            )
+
         # Destroy random apple
         if len(self.apple_sprites.sprites()) > 0:
             random_apple = choice(self.apple_sprites.sprites())
-            Partical(
+            MaskPratical(
                 pos=random_apple.rect.topleft,
                 surf=random_apple.image,
                 groups=self.groups()[0],
@@ -132,7 +143,7 @@ class Tree(Generic):
 
     def check_death(self):
         if self.health <= 0:
-            Partical(
+            MaskPratical(
                 self.rect.topleft, self.image, self.groups()[0], LAYERS["fruit"], 300
             )
             self.image = self.stump_surf
@@ -153,9 +164,23 @@ class Tree(Generic):
                     z=LAYERS["fruit"],
                 )
 
+    def reset(self):
+        # destroying all apples
+        for apple in self.apple_sprites.sprites():
+            apple.kill()
+
+        if not self.alive:
+            self.day_passed += 1
+            if self.day_passed >= 2:
+                self.realive()
+        else:
+            self.create_fruit()
+
     def update(self, dt):
         if self.alive:
             self.check_death()
+        for i in self.particals:
+            i.update(dt)
 
     def load(self):
         if self.health <= 0:

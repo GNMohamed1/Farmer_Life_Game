@@ -1,6 +1,6 @@
 from random import randint
 import pygame
-from sprites import Partical
+from sprites import MaskPratical
 from settings import *
 from player import Player
 from overlay import Overlay
@@ -233,15 +233,7 @@ class Level:
 
         # apples on trees
         for tree in self.tree_sprites.sprites():
-            for apple in tree.apple_sprites.sprites():
-                apple.kill()
-            if not tree.alive:
-                tree.day_passed += 1
-                if tree.day_passed >= 2:
-                    tree.realive()
-            else:
-                tree.create_fruit()
-
+            tree.reset()
         # sky
         self.sky.start_color = [255, 255, 255]
 
@@ -251,7 +243,7 @@ class Level:
                 if plant.harvestable and plant.rect.colliderect(self.player.rect):
                     self.player_add(plant.plant_type, 3)
                     plant.kill()
-                    Partical(
+                    MaskPratical(
                         plant.rect.topleft,
                         plant.image,
                         self.all_sprites,
@@ -311,6 +303,15 @@ class Level:
 
 
 class CameraGroup(pygame.sprite.Group):
+    """A custom Sprite group for camera movement
+
+    Uses Layers as name "z" to view its sprite
+    according to its Layer
+
+    and Uses the player position to move the other sprites
+    in the Screen
+    """
+
     def __init__(self):
         super().__init__()
         self.display_surface = pygame.display.get_surface()
@@ -328,15 +329,3 @@ class CameraGroup(pygame.sprite.Group):
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset
                     self.display_surface.blit(sprite.image, offset_rect)
-
-                    # debug
-                    # if sprite == player:
-                    #    pygame.draw.rect(self.display_surface, "red", offset_rect, 5)
-                    #    hitbox_rect = player.hitbox.copy()
-                    #    hitbox_rect.center = offset_rect.center
-                    #    pygame.draw.rect(self.display_surface, "green", hitbox_rect, 5)
-                    #    target_pos = (
-                    #        offset_rect.center
-                    #        + PLAYER_TOOL_OFFSET[player.status.split("_")[0]]
-                    #    )
-                    #    pygame.draw.circle(self.display_surface, "blue", target_pos, 5)
