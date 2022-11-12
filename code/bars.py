@@ -36,45 +36,44 @@ class LoadingBar:
 
         # back bar
         for i in range(SCREEN_WIDTH // TILE_SIZE):
-            bar_back_surf = pygame.image.load("../graphics/soil/x.png")
-            bar_back_rect = bar_back_surf.get_rect(
-                topleft=(i * TILE_SIZE, SCREEN_HEIGHT - TILE_SIZE)
-            )
-            sprite_list = [bar_back_surf, bar_back_rect]
-            self.bar_back.append(sprite_list)
+            surf = pygame.image.load("../graphics/soil/x.png")
+            rect = surf.get_rect(topleft=(i * TILE_SIZE, SCREEN_HEIGHT - TILE_SIZE))
+            self.bar_back.append([surf, rect])
         # front bar
         for i in range(SCREEN_WIDTH // TILE_SIZE):
-            bar_front_surf = pygame.image.load("../graphics/test/Grass.png")
-            bar_front_rect = bar_front_surf.get_rect(
-                topleft=(i * TILE_SIZE, SCREEN_HEIGHT - TILE_SIZE)
-            )
-            sprite_list = [bar_front_surf, bar_front_rect]
-            self.bar_front.append(sprite_list)
+            surf = pygame.image.load("../graphics/test/Grass.png")
+            rect = surf.get_rect(topleft=(i * TILE_SIZE, SCREEN_HEIGHT - TILE_SIZE))
+            self.bar_front.append([surf, rect])
 
         # seed bar
         for i in range(SCREEN_WIDTH // TILE_SIZE):
-            seed_bar_surf = pygame.image.load("../graphics/fruit/corn/0.png")
-            seed_bar_rect = seed_bar_surf.get_rect(center=self.bar_back[i][1].center)
-            sprite_list = [seed_bar_surf, seed_bar_rect, False]
-            self.seed_bar.append(sprite_list)
+            surf = pygame.image.load("../graphics/fruit/corn/0.png")
+            rect = surf.get_rect(center=self.bar_back[i][1].center)
+            self.seed_bar.append([surf, rect, False])
 
     def bar_draw(self):
+        # Clear the Screen
         self.display.fill("Grey")
+        # Checking for the seed bar
         if self.loading_progress > 50:
+            # Turning the seed bar on
             self.seed_bar_visible = True
+            # Move the seed bar
             self.pos.x = ((self.loading_progress - 50) / 100) * SCREEN_WIDTH * 2
             self.farmer_rect.x = self.pos.x
             for i in range(SCREEN_WIDTH // TILE_SIZE):
                 if self.pos.x >= i * TILE_SIZE:
                     self.seed_bar[i][2] = True
-                else:
-                    break
+                    continue
+                break
         else:
+            # Move the grass bar
             self.pos.x = (self.loading_progress / 100) * SCREEN_WIDTH * 2
             for idx, bar_front_list in enumerate(self.bar_front):
                 bar_front_list[1].left = self.pos.x + (idx * TILE_SIZE)
             self.horse_rect.x = self.pos.x
 
+        # Display the Changes
         self.display.blit(self.horse_surf, self.horse_rect)
         for bar_back_list in self.bar_back:
             self.display.blit(bar_back_list[0], bar_back_list[1])
@@ -83,11 +82,11 @@ class LoadingBar:
             for seed_bar_list in self.seed_bar:
                 if seed_bar_list[2]:
                     self.display.blit(seed_bar_list[0], seed_bar_list[1])
-                else:
-                    break
-        else:
-            for bar_front_list in self.bar_front:
-                self.display.blit(bar_front_list[0], bar_front_list[1])
+                    continue
+                break
+            return
+        for bar_front_list in self.bar_front:
+            self.display.blit(bar_front_list[0], bar_front_list[1])
 
     def add_progress(self, amout):
         self.loading_progress += amout
