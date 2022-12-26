@@ -6,6 +6,14 @@ from praticales import Partical
 
 
 class Generic(pygame.sprite.Sprite):
+    """
+    Generic sprite class that can be used for any sprite that is not a player or enemy.
+    @param pos - the position of the sprite in the game window.
+    @param surf - the surface of the sprite.
+    @param groups - the groups the sprite is in.
+    @param z - the layer the sprite is in.
+    """
+
     def __init__(
         self, pos: tuple, surf: pygame.Surface, groups: list, z=LAYERS["main"]
     ):
@@ -18,7 +26,48 @@ class Generic(pygame.sprite.Sprite):
         )
 
 
+class HouseWalls(pygame.sprite.Sprite):
+    """
+    Initialize the house walls.
+    @param pos - the position of the house walls
+    @param surf - the surface of the house walls
+    @param groups - the groups the house walls are in
+    @param z - the z layer of the house walls
+    @param side - the side of the house walls
+    """
+
+    def __init__(
+        self,
+        pos: tuple,
+        surf: pygame.Surface,
+        groups: list,
+        z=LAYERS["main"],
+        side="center",
+    ):
+        super().__init__(groups)
+        self.image = surf
+        self.rect = self.image.get_rect(
+            topleft=pos
+            if side == "center"
+            else (pos[0] - 20, pos[1])
+            if side == "right"
+            else (pos[0] + 20, pos[1])
+        )
+        self.z = z
+        self.hitbox = self.rect.copy().inflate(
+            -self.rect.width * 0.52, -self.rect.height * 0.75
+        )
+
+
 class Interaction(Generic):
+    """
+    The interaction class is a generic class that is used to create the buttons and the           
+    text boxes that are used throughout the program. It is a subclass of the generic class.
+    @param pos - the position of the object (x,y)
+    @param size - the size of the object (width, height)
+    @param groups - the groups the object belongs to
+    @param name - the name of the object
+    """
     def __init__(self, pos: tuple, size, groups: list, name):
         surf = pygame.Surface(size)
         super().__init__(pos, surf, groups)
@@ -26,6 +75,15 @@ class Interaction(Generic):
 
 
 class MaskPratical(Generic):
+    """
+    The mask practical class is a subclass of the Generic class. It is used to create a mask
+    that is used to mask the background of the game. It is used to create a mask that is used
+    to mask the background of the game. It is used to create a mask that is used to mask the
+    background of the game. It is used to create a mask that is used to mask the background of
+    the game. It is used to create a mask that is used to mask the background of the game.
+    It is used to create a mask that is used to mask the background of the game. It is used to
+    create a mask that is used to mask the background of the game. It is used to create
+    """
     def __init__(
         self, pos: tuple, surf: pygame.Surface, groups: list, z, duraction=200
     ):
@@ -46,6 +104,12 @@ class MaskPratical(Generic):
 
 
 class Water(Generic):
+    """
+    The water class is a subclass of the Generic class. It is used to create water objects.
+    @param pos - the position of the water object
+    @param frames - the frames of the water object
+    @param groups - the groups of the water object
+    """
     def __init__(self, pos: tuple, frames: list, groups):
 
         # Animation setup
@@ -66,12 +130,27 @@ class Water(Generic):
 
 
 class WildFlower(Generic):
+    """
+    A class that represents a wild flower. The flower is a generic object that is drawn on the screen.
+    @param pos - the position of the flower in the world.
+    @param surf - the surface of the flower.
+    @param groups - the groups the flower belongs to.
+    """
     def __init__(self, pos: tuple, surf: pygame.Surface, groups: list):
         super().__init__(pos, surf, groups)
         self.hitbox = self.rect.copy().inflate(-20, -self.rect.height * 0.9)
 
 
 class Tree(Generic):
+    """
+    The tree class. This class is used to represent the trees in the game. It is a subclass of the generic class.
+    @param pos - the position of the tree in the game.
+    @param surf - the surface of the tree.
+    @param groups - the groups the tree is in.
+    @param name - the name of the tree.
+    @param player_add - the function to add the player's resources.
+    @param data - the data of the tree.
+    """
     def __init__(
         self, pos: tuple, surf: pygame.Surface, groups: list, name, player_add, data
     ):

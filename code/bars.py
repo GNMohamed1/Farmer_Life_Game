@@ -3,6 +3,9 @@ from settings import *
 
 
 class LoadingBar:
+    """
+    The loading bar class. This class is used to display the loading bar during the loading of the game.
+    """
     def __init__(self):
         self.display = pygame.display.get_surface()
         self.font = pygame.font.SysFont("Roboto", 128)

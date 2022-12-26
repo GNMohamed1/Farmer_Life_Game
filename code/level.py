@@ -4,7 +4,7 @@ from sprites import MaskPratical
 from settings import *
 from player import Player
 from overlay import Overlay
-from sprites import Generic, Water, WildFlower, Tree, Interaction
+from sprites import Generic, Water, WildFlower, Tree, Interaction, HouseWalls
 from pytmx.util_pygame import load_pygame
 from support import *
 from transition import Transition
@@ -159,11 +159,40 @@ class Level:
             )
 
         for x, y, surf in tmx_data.get_layer_by_name("Collision").tiles():
-            Generic(
-                (x * TILE_SIZE, y * TILE_SIZE),
-                pygame.Surface((TILE_SIZE, TILE_SIZE)),
-                self.collision_sprites,
-            )
+            if (x,y) in [(20,21),
+                         (20,22),
+                         (20,23),                                                       
+                         (20,24), 
+                         (20,25), 
+                         (20,26),]:
+                HouseWalls(
+                    (x * TILE_SIZE, y * TILE_SIZE),
+                    pygame.Surface((TILE_SIZE, TILE_SIZE)),
+                    self.collision_sprites,
+                    side = "left"
+                )
+            elif (x,y) in [(21,21), (22,21), (23,21), (24,21), (25,21), (26,21),(21,22),(26,22),
+                            (21,24), (22,24),(21,25), (21,26), (22,26), (23,26), (24,26),(26,26), ]:
+                HouseWalls(
+                    (x * TILE_SIZE, y * TILE_SIZE),
+                    pygame.Surface((TILE_SIZE, TILE_SIZE)),
+                    self.collision_sprites,
+                    side = "center"
+                )           
+
+            elif (x,y) in [ (27,21), (27,22),(27,23),(27,24),(27,25),(27,26)]:
+                HouseWalls(
+                    (x * TILE_SIZE, y * TILE_SIZE),
+                    pygame.Surface((TILE_SIZE, TILE_SIZE)),
+                    self.collision_sprites,
+                    side = "right"
+                )
+            else:
+                Generic(
+                    (x * TILE_SIZE, y * TILE_SIZE),
+                    pygame.Surface((TILE_SIZE, TILE_SIZE)),
+                    self.collision_sprites,
+                )
 
         self.loading_bar.add_progress(5)
 

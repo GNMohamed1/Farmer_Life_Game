@@ -28,3 +28,8 @@ class CameraGroup(pygame.sprite.Group):
                     offset_rect = sprite.rect.copy()
                     offset_rect.center -= self.offset
                     self.display_surface.blit(sprite.image, offset_rect)
+                    # if hasattr(sprite, 'hitbox'):
+                    #     #pygame.draw.rect(self.display_surface, 'red', offset_rect, 5)
+                    #     hitbox_rect = sprite.hitbox.copy()
+                    #     hitbox_rect.center = offset_rect.center
+                    #     pygame.draw.rect(self.display_surface,'green',hitbox_rect,5)

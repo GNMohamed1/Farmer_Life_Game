@@ -2,6 +2,7 @@ import pygame
 from settings import *
 from support import *
 from timer import Timer
+from sprites import HouseWalls
 
 
 class Player(pygame.sprite.Sprite):
