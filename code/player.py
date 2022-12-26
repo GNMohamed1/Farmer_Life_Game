@@ -250,7 +250,7 @@ class Player(pygame.sprite.Sprite):
                         self.hitbox.left = sprite.hitbox.right
                     self.rect.centerx = self.hitbox.centerx
                     self.pos.x = self.hitbox.centerx
-                if direction == "vertical":
+                elif direction == "vertical":
                     if self.direction.y > 0:
                         self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0:
