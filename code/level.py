@@ -160,11 +160,11 @@ class Level:
 
         for x, y, surf in tmx_data.get_layer_by_name("Collision").tiles():
             if (x,y) in [(20,21),
-                         (20,22),
-                         (20,23),                                                       
-                         (20,24), 
-                         (20,25), 
-                         (20,26),]:
+                        (20,22),
+                        (20,23),                                                       
+                        (20,24), 
+                        (20,25), 
+                        (20,26),]:
                 HouseWalls(
                     (x * TILE_SIZE, y * TILE_SIZE),
                     pygame.Surface((TILE_SIZE, TILE_SIZE)),

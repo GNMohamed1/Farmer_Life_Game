@@ -258,7 +258,6 @@ class Player(pygame.sprite.Sprite):
                         self.hitbox.top = sprite.hitbox.bottom
                     self.rect.centery = self.hitbox.centery
                     self.pos.y = self.hitbox.centery
-
     def move(self, dt):
         # Normalizing the vector
         if self.direction.magnitude() > 0:

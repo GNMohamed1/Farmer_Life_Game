@@ -26,6 +26,9 @@ class LoadingBar:
         self.finished_couts = 0
         self.couts = -120
 
+        self.loading_text = self.font.render("Loading...", False, "White")
+        self.loading_rect = self.loading_text.get_rect(center=(640, 420))
+
     def add_bars(self):
         # horse
         self.horse_surf = pygame.Surface((128, 64))
@@ -76,6 +79,11 @@ class LoadingBar:
                 bar_front_list[1].left = self.pos.x + (idx * TILE_SIZE)
             self.horse_rect.x = self.pos.x
 
+        # Draw loading percentage
+        loading_text = self.font.render(f"{self.loading_progress}%", False, "White")
+        loading_rect = loading_text.get_rect(center=(640, 380))
+        self.display.blit(loading_text, loading_rect)
+
         # Display the Changes
         self.display.blit(self.horse_surf, self.horse_rect)
         for bar_back_list in self.bar_back:
@@ -91,8 +99,8 @@ class LoadingBar:
         for bar_front_list in self.bar_front:
             self.display.blit(bar_front_list[0], bar_front_list[1])
 
-    def add_progress(self, amout):
-        self.loading_progress += amout
+    def add_progress(self, amount):
+        self.loading_progress += amount
         self.loading_progress = min(self.loading_progress, 100)
 
     def update(self):

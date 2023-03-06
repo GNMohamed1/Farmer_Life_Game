@@ -187,13 +187,13 @@ class MainMenu:
         # start button
         pos = (self.padding[0], self.padding[1] * 2)
         self.buttons.append(
-            Button("Start", self.btn_width, self.btn_height, pos, self.start)
+            Button("Start", self.btn_width, self.btn_height, pos, self.start, "../graphics/ui/buttons/button.png", "../font/forw.ttf")
         )
 
         # exit button
         pos = (pos[0], self.padding[1])
         self.buttons.append(
-            Button("Exit", self.btn_width, self.btn_height, pos, self.exit)
+            Button("Exit", self.btn_width, self.btn_height, pos, self.exit, "../graphics/ui/buttons/button.png", "../font/forw.ttf")
         )
 
     def update(self):
