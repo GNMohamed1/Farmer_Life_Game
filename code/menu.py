@@ -174,6 +174,7 @@ class MainMenu:
         self.btn_height = 128
         self.padding = ((SCREEN_WIDTH // 2) - self.btn_width // 2, -self.btn_height)
         self.start = menu_start
+        self.name = "MainMenu"
 
         # buttons
         self.buttons = []
@@ -223,13 +224,13 @@ class PauseMenu:
         # continue button
         pos = (self.padding[0], SCREEN_HEIGHT // 2 - self.btn_height // 2)
         self.buttons.append(
-            Button("Continue", self.btn_width, self.btn_height, pos, self.continue_func)
+            Button("Continue", self.btn_width, self.btn_height, pos, self.continue_func, "../graphics/ui/buttons/button.png", "../font/forw.ttf")
         )
 
         # exit button
         pos = (pos[0], pos[1] + self.padding[1])
         self.buttons.append(
-            Button("Exit", self.btn_width, self.btn_height, pos, self.exit)
+            Button("Exit", self.btn_width, self.btn_height, pos, self.exit, "../graphics/ui/buttons/button.png", "../font/forw.ttf")
         )
 
     def update(self):

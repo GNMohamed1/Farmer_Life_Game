@@ -52,6 +52,7 @@ class Game:
                     pygame.quit()
                     sys.exit()
 
+
             if self.state[self.idx] == "level":
                 if not self.level_init and not once:
                     self.level_fade()

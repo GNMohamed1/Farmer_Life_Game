@@ -241,35 +241,56 @@ class Player(pygame.sprite.Sprite):
         for timer in self.timers.values():
             timer.update()
 
+    def collision_horizontal(self, sprite, dx):
+        if dx > 0:
+            self.hitbox.right = sprite.hitbox.left
+        elif dx < 0:
+            self.hitbox.left = sprite.hitbox.right
+        self.rect.centerx = self.hitbox.centerx
+        self.pos.x = self.hitbox.centerx
+
+    def collision_vertical(self, sprite, dy):
+        if dy > 0:
+            self.hitbox.bottom = sprite.hitbox.top
+        elif dy < 0:
+            self.hitbox.top = sprite.hitbox.bottom
+        self.rect.centery = self.hitbox.centery
+        self.pos.y = self.hitbox.centery
+
     def collision(self, direction):
-        for sprite in self.collision_sprites.sprites():
-            if hasattr(sprite, "hitbox") and sprite.hitbox.colliderect(self.hitbox):
+        if self.direction.magnitude() == 0:
+            return
+        dx = self.direction.x
+        dy = self.direction.y
+        collision_sprites = [sprite for sprite in self.collision_sprites.sprites() if hasattr(sprite, "hitbox")]
+        for sprite in collision_sprites:
+            if sprite.hitbox.colliderect(self.hitbox):
                 if direction == "horizontal":
-                    if self.direction.x > 0:
-                        self.hitbox.right = sprite.hitbox.left
-                    if self.direction.x < 0:
-                        self.hitbox.left = sprite.hitbox.right
-                    self.rect.centerx = self.hitbox.centerx
-                    self.pos.x = self.hitbox.centerx
+                    self.collision_horizontal(sprite, dx)
                 elif direction == "vertical":
-                    if self.direction.y > 0:
-                        self.hitbox.bottom = sprite.hitbox.top
-                    if self.direction.y < 0:
-                        self.hitbox.top = sprite.hitbox.bottom
-                    self.rect.centery = self.hitbox.centery
-                    self.pos.y = self.hitbox.centery
+                    self.collision_vertical(sprite, dy)
+
+
     def move(self, dt):
-        # Normalizing the vector
+        dx = self.direction.x
+        dy = self.direction.y
+
+        # Normalize the direction vector
         if self.direction.magnitude() > 0:
-            self.direction = self.direction.normalize()
+            self.direction.normalize_ip()
+
+        # caching the distance
+
+        dist = self.speed * dt
+
         # Horizontal Movement
-        self.pos.x += self.direction.x * self.speed * dt
+        self.pos.x += dx * dist
         self.hitbox.centerx = round(self.pos.x)
         self.rect.centerx = self.hitbox.centerx
         self.collision("horizontal")
 
         # Vertical Movement
-        self.pos.y += self.direction.y * self.speed * dt
+        self.pos.y += dy * dist
         self.hitbox.centery = round(self.pos.y)
         self.rect.centery = self.hitbox.centery
         self.collision("vertical")
