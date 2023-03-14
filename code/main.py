@@ -2,7 +2,7 @@ import pygame, sys, time, threading
 from settings import *
 from level import Level
 from menu import MainMenu
-from animator import Animator
+from animator import AnimatorMenu
 from bars import LoadingBar
 
 
@@ -19,7 +19,7 @@ class Game:
         self.idx = 0
         self.level = None
         self.level_init = False
-        self.main_menu_animator = Animator(self.main_menu, "main menu")
+        self.main_menu_animator = AnimatorMenu(self.main_menu, "main menu")
         self.basic = pygame.font.Font("../font/forw.ttf", 16)
         self.loading_bar = LoadingBar()
 

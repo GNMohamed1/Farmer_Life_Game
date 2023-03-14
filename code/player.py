@@ -3,6 +3,7 @@ from settings import *
 from support import *
 from timer import Timer
 from sprites import HouseWalls
+from animator import AnimatorSprite
 
 
 class Player(pygame.sprite.Sprite):
@@ -26,10 +27,13 @@ class Player(pygame.sprite.Sprite):
         self.data = data
 
         # Animations setup
+        self.animation_speed = 0.5
+        self.animator = AnimatorSprite(self)
         self.import_assets()
+        self.add_animations()
         self.status = data["status"]
         self.frame_idx = 0
-        self.animation_speed = 4
+        self.animator.play_animation(self.status)
 
         # Player setup
         self.image = self.animations[self.status][self.frame_idx]
@@ -81,6 +85,10 @@ class Player(pygame.sprite.Sprite):
         self.watering = pygame.mixer.Sound("../audio/water.mp3")
         self.watering.set_volume(0.2)
 
+    def add_animations(self):
+        for anime in self.animations.keys():
+            self.animator.add_animation(anime,self.animations[anime], self.animation_speed )
+
     def use_tool(self):
         if self.selected_tool == "hoe":
             self.soil_layer.get_hit(self.target_pos)
@@ -107,10 +115,7 @@ class Player(pygame.sprite.Sprite):
             self.seed_inventory[self.selected_seed] -= 1
 
     def animate(self, dt):
-        self.frame_idx += 4 * dt
-        if self.frame_idx >= len(self.animations[self.status]):
-            self.frame_idx = 0
-        self.image = self.animations[self.status][int(self.frame_idx)]
+        self.animator.play_animation(self.status, dt)
 
     def import_assets(self):
         self.animations = {
