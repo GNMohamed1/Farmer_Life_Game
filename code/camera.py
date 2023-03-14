@@ -17,13 +17,23 @@ class CameraGroup(pygame.sprite.Group):
         self.offset = pygame.math.Vector2()
 
     def custom_draw(self, player):
-        self.offset.x = player.rect.x - SCREEN_WIDTH / 2
-        self.offset.y = player.rect.y - SCREEN_HEIGHT / 2
+        self.offset.x = player.rect.centerx - SCREEN_WIDTH / 2
+        self.offset.y = player.rect.centery - SCREEN_HEIGHT / 2
+
+        visible_sprites = []
+
+        for sprite in self.sprites():
+            if sprite.rect.colliderect(pygame.Rect((self.offset.x, self.offset.y), (SCREEN_WIDTH, SCREEN_HEIGHT))):
+                visible_sprites.append(sprite)
 
         for layer in LAYERS.values():
-            for sprite in sorted(
-                self.sprites(), key=lambda sprite: sprite.rect.centery
-            ):
+            for sprite in sorted(visible_sprites, key=lambda sprite: sprite.rect.centery):
                 if sprite.z == layer:
-                    offset_rect = sprite.rect.move(-self.offset)
+                    offset_rect = sprite.rect.copy()
+                    offset_rect.center -= self.offset
                     self.display_surface.blit(sprite.image, offset_rect)
+                    # if hasattr(sprite, 'hitbox'):
+                    #     #pygame.draw.rect(self.display_surface, 'red', offset_rect, 5)
+                    #     hitbox_rect = sprite.hitbox.copy()
+                    #     hitbox_rect.center = offset_rect.center
+                    #     pygame.draw.rect(self.display_surface,'green',hitbox_rect,5)
